@@ -1,0 +1,199 @@
+import 'package:animations/animations.dart';
+import 'package:collection/collection.dart';
+import 'package:fitandfitness/src/app/dashboard/presentation/state/current_overview_date.dart';
+import 'package:fitandfitness/src/app/details_page/presentation/weight_details/weight_details_screen.dart';
+import 'package:fitandfitness/src/common_widgets/weight/display/weight_display.dart';
+import 'package:fitandfitness/src/data/controllers/weight_controller.dart';
+import 'package:fitandfitness/src/models/entry_type.dart';
+import 'package:fitandfitness/src/models/weight/weight.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
+
+class WeightWidget extends StatelessWidget {
+  const WeightWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: OpenContainer(
+        closedColor: Theme.of(context).cardColor,
+        closedBuilder: (BuildContext c, VoidCallback action) =>
+            WeightWidgetContents(action: action),
+        openBuilder: (BuildContext c, VoidCallback action) =>
+            const WeightDetailsScreen(),
+        tappable: true,
+      ),
+    );
+  }
+}
+
+class WeightWidgetContents extends ConsumerWidget {
+  final VoidCallback action;
+
+  const WeightWidgetContents({
+    super.key,
+    required this.action,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final overviewDate = ref.watch(currentOverviewDateProvider);
+    final weightController = ref.watch(weightControllerProvider);
+
+    return InkWell(
+      onTap: action,
+      child: Stack(
+        children: [
+          Container(
+            color: Colors.blueGrey.withValues(alpha:0.15),
+            constraints: const BoxConstraints.expand(),
+          ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: weightController.when(
+              data: (weightEntries) => WeightWidgetBody(
+                overviewDate: overviewDate.dateTime,
+                weightEntries: weightEntries,
+              ),
+              loading: () => FilledWidget(
+                overviewDate: overviewDate.dateTime,
+                child: Shimmer.fromColors(
+                  baseColor: Colors.blueGrey.withValues(alpha:0.15),
+                  highlightColor: Colors.blueGrey.withValues(alpha:0.25),
+                  child: Container(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              error: (e, st) => FilledWidget(
+                overviewDate: overviewDate.dateTime,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Text(
+                      EntryType.weight.errorStateMessage,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class FilledWidget extends StatelessWidget {
+  const FilledWidget({
+    super.key,
+    required this.overviewDate,
+    required this.child,
+  });
+
+  final DateTime overviewDate;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        child,
+        Opacity(
+          opacity: 0.0,
+          child: WeightWidgetBody(
+            overviewDate: overviewDate,
+            weightEntries: [
+              Weight(
+                id: "1",
+                weight: 0,
+                recordedAt: DateTime.now(),
+                modifiedAt: DateTime.now(),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class WeightWidgetBody extends StatelessWidget {
+  const WeightWidgetBody({
+    super.key,
+    required this.overviewDate,
+    required this.weightEntries,
+  });
+
+  final DateTime overviewDate;
+  final List<Weight> weightEntries;
+
+  @override
+  Widget build(BuildContext context) {
+    final formatter = DateFormat("dd MMM yyyy");
+    final recentWeightEntry = weightEntries.last;
+    final filteredWeightEntries = weightEntries
+        .where(
+          (entry) => (entry.recordedAt.isBefore(overviewDate) ||
+              DateUtils.isSameDay(
+                entry.recordedAt,
+                overviewDate,
+              )),
+        )
+        .sortedBy((entry) => entry.recordedAt)
+        .toList();
+
+    final lastWeightEntry = (filteredWeightEntries.isNotEmpty)
+        ? filteredWeightEntries.last
+        : recentWeightEntry;
+
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Weight',
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(
+            height: 8,
+          ),
+          DefaultTextStyle.merge(
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
+              child: WeightDisplay(lastWeightEntry.weight)),
+          const Divider(
+            height: 12,
+          ),
+          Text(
+            'Recorded At',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(
+            height: 4,
+          ),
+          Text(
+            formatter.format(lastWeightEntry.recordedAt),
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -1,0 +1,163 @@
+import 'package:animations/animations.dart';
+import 'package:collection/collection.dart';
+import 'package:fitandfitness/src/app/dashboard/presentation/mood/mood_carousel.dart';
+import 'package:fitandfitness/src/app/dashboard/presentation/state/current_overview_date.dart';
+import 'package:fitandfitness/src/app/details_page/presentation/mood_details/mood_details_screen.dart';
+import 'package:fitandfitness/src/data/controllers/mood_controller.dart';
+import 'package:fitandfitness/src/models/entry_type.dart';
+import 'package:fitandfitness/src/models/mood/mood.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shimmer/shimmer.dart';
+
+class MoodWidget extends StatelessWidget {
+  const MoodWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: OpenContainer(
+        closedColor: Theme.of(context).cardColor,
+        closedBuilder: (BuildContext c, VoidCallback action) =>
+            MoodWidgetContents(
+          action: action,
+        ),
+        openBuilder: (BuildContext c, VoidCallback action) =>
+            const MoodDetailsScreen(),
+        tappable: true,
+      ),
+    );
+  }
+}
+
+class MoodWidgetContents extends ConsumerWidget {
+  final VoidCallback action;
+
+  const MoodWidgetContents({
+    super.key,
+    required this.action,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final overviewDate = ref.watch(currentOverviewDateProvider);
+    final moodController = ref.watch(moodControllerProvider);
+
+    return InkWell(
+      onTap: action,
+      child: Container(
+        color: Colors.red.withValues(alpha:0.15),
+        constraints: const BoxConstraints.expand(),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: moodController.when(
+            data: (moodEntries) => MoodWidgetBody(
+              overviewDate: overviewDate.dateTime,
+              moodEntries: moodEntries,
+            ),
+            loading: () => FilledWidget(
+              overviewDate: overviewDate.dateTime,
+              child: Shimmer.fromColors(
+                baseColor: Colors.red.withValues(alpha:0.15),
+                highlightColor: Colors.red.withValues(alpha:0.25),
+                child: Container(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            error: (e, st) => FilledWidget(
+              overviewDate: overviewDate.dateTime,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: Text(
+                    EntryType.mood.errorStateMessage,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class FilledWidget extends StatelessWidget {
+  const FilledWidget({
+    super.key,
+    required this.overviewDate,
+    required this.child,
+  });
+
+  final DateTime overviewDate;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        child,
+        Opacity(
+          opacity: 0.0,
+          child: MoodWidgetBody(
+            overviewDate: overviewDate,
+            moodEntries: const [],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class MoodWidgetBody extends StatelessWidget {
+  const MoodWidgetBody({
+    super.key,
+    required this.overviewDate,
+    required this.moodEntries,
+  });
+
+  final DateTime overviewDate;
+  final List<Mood> moodEntries;
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredMoodEntries = moodEntries
+        .where(
+          (entry) => DateUtils.isSameDay(entry.recordedAt, overviewDate),
+        )
+        .sortedBy((entry) => entry.recordedAt)
+        .toList();
+
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Mood',
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge
+                ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(
+            height: 4,
+          ),
+          Expanded(
+            child: MoodCarousel(
+              moods: (filteredMoodEntries.isNotEmpty)
+                  ? filteredMoodEntries.last.moodSentiments
+                  : {},
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
