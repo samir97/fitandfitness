@@ -1,0 +1,55 @@
+# Dart/Flutter
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec.lock
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Android
+android/.gradle/
+**/android/**/gradle-wrapper.jar
+.gradle/
+local.properties
+**/android/**/GeneratedPluginRegistrant.java
+android/captures/
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+**/ios/**/DerivedData/
+**/ios/**/xcuserdata/
+**/ios/**/GeneratedPluginRegistrant.*
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+
+# Firebase & Secrets
+lib/firebase_options.dart
+lib/src/firebase/firebase_config.dart
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+ios/firebase_app_id_file.json
+android/key.properties
+**/*.jks
+**/*.keystore
+
+# Junk
+any/
+custom_lint.log
+package-lock.json
+
+# Claude
+.claude/

@@ -1,0 +1,97 @@
+name: fitandfitness
+description: "Track workouts, mood, sleep, water, and weight — all in one app."
+
+publish_to: 'none'
+homepage: https://fitandfitness.app
+repository: https://github.com/fitandfitness/fitandfitness
+
+version: 1.0.2+7
+# flutter build ipa --obfuscate --split-debug-info=any/path
+# flutter build appbundle
+# [YOUR_PROJECT]\build\app\intermediates\merged_native_libs\release\out\lib
+
+environment:
+  sdk: '>=3.2.4 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_localizations:
+    sdk: flutter
+
+  animations: ^2.0.11
+  cached_network_image: ^3.3.1
+  cupertino_icons: ^1.0.6
+  cloud_firestore: ^4.14.0
+  firebase_app_check: ^0.2.2+4
+  firebase_analytics: ^10.8.0
+  firebase_auth: ^4.16.0
+  firebase_core: ^2.28.0
+  firebase_crashlytics: ^3.4.9
+  firebase_remote_config: ^4.3.8
+  firebase_storage: ^11.6.0
+  firebase_ui_auth: ^1.12.1
+  firebase_ui_firestore: ^1.6.1
+  firebase_ui_oauth_apple: ^1.2.17
+  firebase_ui_oauth_google: ^1.2.17
+  fl_chart: ^0.66.0
+  flutter_image_compress: ^2.1.0
+  flutter_riverpod: ^2.4.9
+  flutter_slidable: ^3.0.1
+  flutter_sticky_header: ^0.6.5
+  flutter_native_splash: ^2.2.17
+  freezed_annotation: ^2.4.1
+  google_fonts: ^6.1.0
+  image_picker: ^1.0.7
+  intl: ^0.20.2
+  json_annotation: ^4.8.1
+  material_design_icons_flutter: ^7.0.7296
+  modal_bottom_sheet: ^3.0.0-pre
+  number_display: ^3.0.0
+  path: ^1.8.3
+  path_provider: ^2.1.2
+  riverpod_annotation: ^2.3.3
+  shimmer: ^3.0.0
+  collection: ^1.18.0
+  uuid: ^4.3.3
+  package_info_plus: ^6.0.0
+  url_launcher: ^6.2.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  build_runner: ^2.4.8
+  flutter_launcher_icons: ^0.13.1
+  flutter_lints: ^3.0.1
+  freezed: ^2.4.6
+  json_serializable: ^6.7.1
+  riverpod_generator: ^2.3.9
+  riverpod_lint: ^2.3.7
+
+#dart run flutter_launcher_icons:main
+flutter_launcher_icons:
+  image_path_android: "assets/images/launcher/ic_launcher.png"
+  image_path_ios: "assets/images/launcher/ic_launcher.png"
+  android: true
+  ios: true
+  adaptive_icon_background: "assets/images/launcher/ic_launcher_background.png"
+  adaptive_icon_foreground: "assets/images/launcher/ic_launcher_foreground.png"
+  adaptive_icon_monochrome: "assets/images/launcher/ic_launcher_monochrome.png"
+  remove_alpha_ios: true
+  background_color_ios: "#506478"
+
+flutter_native_splash:
+  color: "#506478"
+  image: assets/images/launcher/launch_512.png
+  android_12:
+    image: assets/images/launcher/ic_launcher_foreground.png
+    color: "#506478"
+
+  web: false
+
+flutter:
+  assets:
+    - assets/images/launcher/
+  uses-material-design: true
